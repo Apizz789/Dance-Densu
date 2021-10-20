@@ -1,0 +1,924 @@
+#include "globalVar.h"
+#include "effect.h"
+
+
+double vera;
+using namespace std;
+using namespace sf;
+
+long long score = 0;
+
+sf::Font font;
+
+struct Note {
+	sf::RectangleShape N;
+	int speed = 1;
+};
+
+string path;
+sf::Clock cock, cock1, cock2;
+sf::Time redTime[10], Bg[10];
+int randMusic;
+sf::Texture BOOM[10];
+effect _BOOM[10][10];
+
+sf::Time LastPressed[5];
+
+int main()
+{
+	srand(time(NULL));
+
+#pragma region INIT
+	bool BEGIN = true;
+	bool MENU = false;
+	bool PLAY = false;
+	bool STORY = false;
+	bool HOWTOPLAY = false;
+	bool HIGHSCORE = false;
+	bool EXIT = false;
+	
+
+	sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "Dance Densu", sf::Style::Fullscreen);
+	sf::Image Icon;
+	Icon.loadFromFile("icon.JPG");
+	window.setIcon(480, 480, Icon.getPixelsPtr());
+
+	sf::RectangleShape MENUPAGE(sf::Vector2f(1920.f, 1080.f));
+	sf::RectangleShape BEGINPAGE(sf::Vector2f(1920.f, 1080.f));
+	sf::RectangleShape PLAYPAGE(sf::Vector2f(1920.f, 1080.f));
+	sf::RectangleShape HOWTOPAGE(sf::Vector2f(1920.f, 1080.f));
+	sf::RectangleShape HIGHSPAGE(sf::Vector2f(1920.f, 1080.f));
+	sf::RectangleShape EXITPAGE(sf::Vector2f(1920.f, 1080.f));
+	sf::RectangleShape ENTER(sf::Vector2f(200, 200));
+	sf::RectangleShape AKB(sf::Vector2f(1920, 1080));
+	sf::RectangleShape thk(sf::Vector2f(1920, 1080));
+
+	//////////////////////////////////////////////////////////////
+
+	//////////////////////////////////////////////////////////////
+
+	sf::Texture _BEGIN, _thk; _BEGIN.loadFromFile("LOGO.PNG"); _thk.loadFromFile("THK.png");
+	AKB.setTexture(&_BEGIN); thk.setTexture(&_thk); thk.setPosition(20, 0);
+
+	////Load the icon
+	sf::Image image;
+	sf::Cursor cursor;
+	if (!image.loadFromFile("icon.png"))
+		return -1;
+	if (!cursor.loadFromPixels(image.getPixelsPtr(), image.getSize(), { 0, 0 }))
+		return -1;
+	window.setMouseCursor(cursor);
+
+#pragma endregion
+
+#pragma region FADE 
+	int oppa = 0;
+	while (BEGIN && cock1.getElapsedTime() < sf::seconds(5)) {
+		if (cock1.getElapsedTime().asMilliseconds() % 10 == 0) {
+			if (oppa < 255)
+				AKB.setFillColor(sf::Color(255, 255, 255, oppa += 3));
+		}
+
+		window.clear();
+		window.draw(AKB);
+		window.display();
+		//// if pressed BEGIN = False
+	}
+	cock1.restart();
+
+	while (BEGIN && cock1.getElapsedTime() < sf::seconds(3)) {
+		if (cock1.getElapsedTime().asMilliseconds() % 10 == 0) {
+			if (oppa > 0)
+				AKB.setFillColor(sf::Color(255, 255, 255, oppa -= 3));
+		}
+
+		window.clear();
+		window.draw(AKB);
+		window.display();
+		//// if pressed BEGIN = False
+	}
+	cock1.restart();
+	while (BEGIN && cock1.getElapsedTime() < sf::seconds(5)) {
+		if (cock1.getElapsedTime().asMilliseconds() % 10 == 0) {
+			if (oppa < 255)
+				thk.setFillColor(sf::Color(255, 255, 255, oppa += 3));
+		}
+
+		window.clear();
+		window.draw(thk);
+		window.display();
+	}
+	
+	/////////////////////////////////------------------------- HIGH SCORE --------------------------------//////////////////////////////
+
+	MENU = true;
+	//////////////////////////////////////////////////////----------------------------------------/////////////////////////////////////////////////////////////////
+
+	///////////////////////////////////////////////////////////////////////////////
+#pragma endregion
+
+	do
+	{
+		//////////////////////// MENU PAGE /////////////////////////
+		if (MENU == true && PLAY == false && STORY == false && HOWTOPLAY == false && HIGHSCORE == false && EXIT == false)
+		{
+
+			sf::Texture  MENU1, MENU2, MENU3, MENU4, MENU5, MENU6, BG_MENU1, BG_MENU2, BG_MENU3, BG_MENU4;
+			sf::Texture  _BEGINPAGE;
+			_BEGINPAGE.loadFromFile("LOGO.png");
+
+			for (int i = 1; i <= 5; i++) {
+				BOOM[i].loadFromFile("B" + std::to_string(i) + ".png");
+			}
+		
+			//// _BOOM[5].setTexture(BOOM[5]);
+			//// _BOOM[5].animation.set({ 254,240 }, { 31,1 }, sf::seconds(0.01));
+			//// _BOOM[5].body.setPosition({ 200.f,700.f });
+
+			sf::RectangleShape begin(sf::Vector2f(1920, 1080));
+
+			begin.setPosition(0.f, -170.f); begin.setTexture(&_BEGINPAGE);
+
+			MENU1.loadFromFile("B_play.png");
+			MENU2.loadFromFile("B_story.png");
+			MENU3.loadFromFile("B_howtoplay.png");
+			MENU4.loadFromFile("B_highscore.png");
+			MENU5.loadFromFile("B_demo.png");
+
+			MENU6.loadFromFile("B_exit.png");
+			BG_MENU1.loadFromFile("BG_MENU_1.png");
+			BG_MENU2.loadFromFile("BG_MENU_2.png");
+			BG_MENU3.loadFromFile("BG_MENU_3.png");
+
+
+			sf::RectangleShape BPLAY(sf::Vector2f(500.f, 120.f));
+			sf::RectangleShape BSTORY(sf::Vector2f(500.f, 120.f));
+			sf::RectangleShape BHOWTO(sf::Vector2f(500.f, 120.f));
+			sf::RectangleShape BHIGHS(sf::Vector2f(500.f, 120.f));
+			sf::RectangleShape BDEMO(sf::Vector2f(500.f, 200.f));
+			sf::RectangleShape BEXIT(sf::Vector2f(500.f, 120.f));
+			sf::RectangleShape BGMENU1(sf::Vector2f(2220.f, 1080.f));
+			sf::RectangleShape BGMENU2(sf::Vector2f(1920.f, 1380.f));
+			sf::RectangleShape BGMENU3(sf::Vector2f(2220.f, 1080.f));
+
+			BPLAY.setPosition(710.745f, 788.589f); BPLAY.setTexture(&MENU1);
+			BSTORY.setPosition(72.356, 670.632); BSTORY.setTexture(&MENU2);
+			BHOWTO.setPosition(72.356, 907.069); BHOWTO.setTexture(&MENU3);
+			BHIGHS.setPosition(1341.782, 670.632); BHIGHS.setTexture(&MENU4);
+			BDEMO.setPosition(1363, 865); BDEMO.setTexture(&MENU5);
+			BEXIT.setPosition(1341.782, 907.069); BEXIT.setTexture(&MENU6);
+			BGMENU1.setPosition(0, 0); BGMENU1.setTexture(&BG_MENU1);
+			BGMENU2.setPosition(0, 0); BGMENU2.setTexture(&BG_MENU2);
+			BGMENU3.setPosition(0, 0); BGMENU3.setTexture(&BG_MENU3);
+
+			/////////////////////////////////////////////////////////
+
+			BGMENU1.setPosition(-150, 0);
+			BGMENU2.setPosition(0, -150);
+			BGMENU3.setPosition(-150, 0);
+			float a = 200, b = 0.1;
+			float logo_a = 200, logo_b = 0.1;
+
+			window.setFramerateLimit(1000);
+			sfe::Movie A0;
+
+			A0.openFromFile("AV0.mp4");
+			A0.fit(0, 0, 1920, 1080);
+			A0.play();
+			A0.setVolume(0);
+
+
+			/////////////////////// Decrease Opacity ////////////////////
+			cock1.restart();
+			while (BEGIN && cock1.getElapsedTime() < sf::seconds(3)) {
+				if (cock1.getElapsedTime().asMilliseconds() % 10 == 0) {
+					if (oppa > 0)
+						thk.setFillColor(sf::Color(255, 255, 255, oppa -= 3));
+				}
+
+				window.clear();
+				window.draw(thk);
+				window.display();
+				/// if pressed BEGIN = False
+			}
+			BEGIN = false;
+
+
+			/////////////////////////////////////////////////////////
+
+			int ch = true;
+			while (window.isOpen() && ch)
+			{
+
+				if (A0.getStatus() == sfe::Stopped)
+				{
+					int r = rand() % 7;
+					A0.openFromFile("AV" + to_string(r) + ".mp4");
+					A0.play(); A0.setVolume(0);
+				}
+
+				sf::Event event;
+				while (window.pollEvent(event)) /// ???????????????????????????????
+				{
+
+					sf::Vector2f mouseCord; mouseCord.x = float(sf::Mouse::getPosition(window).x); mouseCord.y = float(sf::Mouse::getPosition(window).y);
+					///////////////////////////////////////// BUTTON PRESSED ////////////////////////////////////////////
+					if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+					{
+						if (BPLAY.getGlobalBounds().contains(mouseCord))
+							if (BPLAY.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window))))
+							{
+								///sound3.play();
+								BPLAY.setPosition(760.745f, 788.589f);
+								BPLAY.setScale(0.8f, 0.8f);
+								ch = false;
+								/*MENU = false;*/
+								PLAY = true;
+								break;
+								system("cls");
+								std::cout << "BPLAY\n";
+							}
+
+						if (BSTORY.getGlobalBounds().contains(mouseCord))
+						{
+							///sound3.play();
+							BSTORY.setPosition(122.356f, 670.632f);
+							BSTORY.setScale(0.8f, 0.8f);
+							ch = false;
+							MENU = false;
+							system("cls");
+							std::cout << "BSTORY\n";
+						}
+						if (BHOWTO.getGlobalBounds().contains(mouseCord))
+						{
+							///sound3.play();
+							BHOWTO.setPosition(122.356f, 907.069f);
+							BHOWTO.setScale(0.8f, 0.8f);
+							system("cls");
+							std::cout << "BHOWTO\n";
+						}
+						if (BHIGHS.getGlobalBounds().contains(mouseCord))
+						{
+							///sound3.play();
+							BHIGHS.setPosition(1391.782f, 670.632f);
+							BHIGHS.setScale(0.8f, 0.8f);
+							system("cls");
+							std::cout << "BHIGHS\n";
+						}
+						if (BEXIT.getGlobalBounds().contains(mouseCord))
+						{
+							///sound3.play();
+							BEXIT.setPosition(1391.782f, 907.069f);
+							BEXIT.setScale(0.8f, 0.8f);
+							window.close();
+							return 0;
+							system("cls");
+							std::cout << "BEXIT\n";
+						}
+					}
+					else
+					{
+						BPLAY.setPosition(710.745f, 788.589f);
+						BPLAY.setScale(1.f, 1.f);
+
+						BSTORY.setPosition(72.356f, 670.632f);
+						BSTORY.setScale(1.f, 1.f);
+
+						BHOWTO.setPosition(72.356f, 907.069f);
+						BHOWTO.setScale(1.f, 1.f);
+
+						BHIGHS.setPosition(1341.782f, 670.632f);
+						BHIGHS.setScale(1.f, 1.f);
+
+						BEXIT.setPosition(1341.782f, 907.069f);
+						BEXIT.setScale(1.f, 1.f);
+
+					}
+
+
+				}
+
+
+				BGMENU1.move(sin(a), 0);
+				BGMENU2.move(0, sin(a));
+				BGMENU3.move(sin(a), 0);
+
+				if (begin.getPosition().x + 960 < Mouse::getPosition().x) {
+					/*	begin.move(sin(b), sin(a));
+					begin.move(sin(b), -sin(a));*/
+					a -= 0.01;
+					while (sin(logo_b) < 0) logo_b += 0.01;
+					if (sin(logo_b) < 0.9) {
+						logo_b += 0.01;
+					}
+				}
+				else if (begin.getPosition().x + 960 > Mouse::getPosition().x) {
+					while (sin(logo_b) > 0) logo_b -= 0.01;
+					if (sin(logo_b) > -0.9) {
+						logo_b -= 0.01;
+					}
+				}
+				begin.move(sin(logo_b), 0);
+				b += 0.01; a -= 0.01;
+
+				/////////////////////////////////////////////////////////
+
+				//////////////////////////////////////////////////////
+
+				A0.update();
+
+				window.clear();
+
+				window.draw(MENUPAGE);
+				window.draw(A0);
+
+				window.setMouseCursorVisible(true);
+
+				window.draw(BGMENU3);
+				window.draw(BGMENU2);
+				window.draw(BGMENU1);
+				window.draw(BPLAY);
+				window.draw(BHOWTO);
+				window.draw(BSTORY);
+				window.draw(BHIGHS);
+				window.draw(BEXIT);
+				window.draw(begin);
+
+				window.display();
+
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+				{
+					window.close();
+					return 0;
+				}
+			}
+
+		}
+		while (PLAY == true)
+		{
+			//FFT fft("Ressources/" + path + "Natsuirono Mule.wav", 16384);
+
+			//////////////////////////////////////////////////////////////////////////////
+
+			srand(time(0));
+			font.loadFromFile("FONTT.ttf");
+			sf::Text scoreText("0", font, 70U);
+			scoreText.setPosition(1550.f, 120.f);
+			scoreText.setFillColor(sf::Color::Black);
+
+			//////////////////////////////////////////////////////////////////////////////
+
+
+			/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+			////////////////////////////////////////////////////////////////////////////////////////////////////
+
+			sf::Texture Arrow_UP, Arrow_DOWN, Arrow_RIGHT, Arrow_LEFT, BG_Status;
+			Arrow_UP.loadFromFile("Arrow_UP.png");
+			Arrow_DOWN.loadFromFile("Arrow_DOWN.png");
+			Arrow_LEFT.loadFromFile("Arrow_LEFT.png");
+			Arrow_RIGHT.loadFromFile("Arrow_RIGHT.png");
+			BG_Status.loadFromFile("BG_Status.png");
+
+			sf::RectangleShape Arrow1(sf::Vector2f(183.117f, 183.117f));
+			sf::RectangleShape Arrow2(sf::Vector2f(183.117f, 183.117f));
+			sf::RectangleShape Arrow3(sf::Vector2f(183.117f, 183.117f));
+			sf::RectangleShape Arrow4(sf::Vector2f(183.117f, 183.117f));
+			sf::RectangleShape BG3(sf::Vector2f(1930.f, 1080.f));
+			Arrow1.setPosition(168, 865); Arrow1.setTexture(&Arrow_UP);
+			Arrow2.setPosition(564, 865); Arrow2.setTexture(&Arrow_DOWN);
+			Arrow3.setPosition(969, 865); Arrow3.setTexture(&Arrow_LEFT);
+			Arrow4.setPosition(1363, 865); Arrow4.setTexture(&Arrow_RIGHT);
+
+			BG3.setPosition(-10, 0); BG3.setTexture(&BG_Status);
+
+			/////////////////////////////////////////////////////////////////////////////////////////////////
+
+			sf::Texture arrows1, arrows2, arrows3, arrows4;
+			arrows1.loadFromFile("arrows1.png");
+			arrows2.loadFromFile("arrows2.png");
+			arrows3.loadFromFile("arrows3.png");
+			arrows4.loadFromFile("arrows4.png");
+
+			sf::Texture SCOREBG;
+			SCOREBG.loadFromFile("SCORE.png");
+			sf::RectangleShape BG4(sf::Vector2f(1930.f, 1080.f));
+			BG4.setPosition(0, -100); BG4.setTexture(&SCOREBG);
+
+			Note a[5], b[5];
+			for (int i = 0; i < 4; i++) {
+				a[i].N.setSize({ 183.117f, 183.117f });
+				a[i].speed = 1;
+				b[i].N.setSize({ 183.117f, 183.117f });
+				b[i].speed = 1;
+			}
+			a[0].N.setPosition(168, 0); a[0].N.setTexture(&arrows1);
+			a[1].N.setPosition(564, 0); a[1].N.setTexture(&arrows2);
+			a[2].N.setPosition(969, 0); a[2].N.setTexture(&arrows3);
+			a[3].N.setPosition(1363, 0); a[3].N.setTexture(&arrows4);
+
+			b[0].N.setPosition(168, 0); b[0].N.setTexture(&arrows1);
+			b[1].N.setPosition(564, 0); b[1].N.setTexture(&arrows2);
+			b[2].N.setPosition(969, 0); b[2].N.setTexture(&arrows3);
+			b[3].N.setPosition(1363, 0); b[3].N.setTexture(&arrows4);
+
+			////////////////////////////////////////////////////////////////////////////////////////////////////
+
+			sf::SoundBuffer buffer1;
+			if (!buffer1.loadFromFile("open.wav"))
+			{
+				std::cout << "Sound" << std::endl;
+			}
+			sf::Sound sound_BG;
+
+
+			sf::SoundBuffer buffer2;
+			if (!buffer2.loadFromFile("sound2.wav"))
+			{
+
+			}
+			sf::Sound sound_2;
+			sound_2.setBuffer(buffer2);
+
+			sf::SoundBuffer buffer3;
+			if (!buffer3.loadFromFile("button.ogg"))
+			{
+
+			}
+			sf::Sound sound3;
+			sound3.setBuffer(buffer3);
+			sound3.setVolume(50);
+
+			sf::SoundBuffer buffer4;
+			if (!buffer4.loadFromFile("Fail.wav"))
+			{
+
+			}
+			sf::Sound sound4;
+			sound4.setBuffer(buffer4);
+			sound4.setVolume(100);
+
+			sf::SoundBuffer buffer5;
+			if (!buffer5.loadFromFile("break.wav"))
+			{
+
+			}
+			sf::Sound sound5;
+			sound5.setBuffer(buffer5);
+			sound5.setVolume(100);
+
+			///////////////////////////////////////////////////////////////////////////////////////////////////
+			if (!sf::SoundBufferRecorder::isAvailable())
+			{
+				std::cout << "you need to install a mic" << std::endl;
+			}
+			sf::SoundBufferRecorder recorder;
+			sf::SoundBuffer buffer;
+			sf::Sound sound;
+
+			////////////////////////////////////////////
+
+			//////////////////////////////////////////////////////////////////////////////////////////////////////
+			float X = 800, Y = 360;
+
+			long long  hp = 250000, max = hp;
+			long long  hp1 = 278500, max1 = hp1;
+			sf::RectangleShape HP(sf::Vector2f(hp / 250, 30));//?????????????????????? ?????????????????
+			sf::RectangleShape HP1(sf::Vector2f(hp1 / 250, 30));
+			HP.setPosition(sf::Vector2f(419.755, 38.293));//??????????????????????
+			HP1.setPosition(sf::Vector2f(419.755, 22.12));
+			HP.setFillColor(sf::Color::Red);//?????????????
+			HP1.setFillColor(sf::Color::Cyan);
+			HP.setSize(sf::Vector2f(hp / 260, 36));//????? size
+			HP1.setSize(sf::Vector2f(hp1 / 290, 66));
+			/////////////////Video///////////////////////
+			sfe::Movie A1;
+			randMusic = rand() % 7;
+			A1.openFromFile("AV" + std::to_string(randMusic) + ".mp4");
+			A1.fit(0, 0, 1920, 1080);
+			A1.play();
+			A1.setVolume(100);
+			cout << " " << endl << to_string(randMusic);
+			///////////////////////////////////////////
+
+
+
+			////// Load the icon
+			sf::Image image;
+			sf::Cursor cursor;
+			if (!image.loadFromFile("icon.png"))
+				return -1;
+			if (!cursor.loadFromPixels(image.getPixelsPtr(), image.getSize(), { 0, 0 }))
+				return -1;
+
+			while (window.isOpen() && PLAY)
+			{
+
+
+
+				for (int i = 1; i <= 4; i++) {
+					if (cock.getElapsedTime() - redTime[i] > sf::seconds(0.5))
+					{
+						if (i == 1) {
+							Arrow1.setFillColor(sf::Color::White);
+						}
+						else if (i == 2) {
+							Arrow2.setFillColor(sf::Color::White);
+						}
+						else if (i == 3) {
+							Arrow3.setFillColor(sf::Color::White);
+						}
+						else if (i == 4) {
+							Arrow4.setFillColor(sf::Color::White);
+						}
+					}
+				}
+
+				sf::Event event;
+				while (window.pollEvent(event)) /// ???????????????????????????????
+				{
+
+					sf::Vector2f mouseCord; mouseCord.x = float(sf::Mouse::getPosition(window).x); mouseCord.y = float(sf::Mouse::getPosition(window).y);
+					///////////////////////////////////////// BUTTON PRESSED ////////////////////////////////////////////
+					if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+					{
+						if (Arrow1.getGlobalBounds().contains(mouseCord))
+						{
+
+							sound3.play();
+							Arrow1.setPosition(195.0f, 880.0f);
+							Arrow1.setScale(0.8f, 0.8f);
+							std::cout << "Arrow1\n";
+						}
+
+						if (Arrow2.getGlobalBounds().contains(mouseCord))
+						{
+							sound3.play();
+							Arrow2.setPosition(585.0f, 880.0f);
+							Arrow2.setScale(0.8f, 0.8f);
+							std::cout << "Arrow2\n";
+						}
+
+						if (Arrow3.getGlobalBounds().contains(mouseCord))
+						{
+							sound3.play();
+							Arrow3.setPosition(995.0f, 880.0f);
+							Arrow3.setScale(0.8f, 0.8f);
+							std::cout << "Arrow3\n";
+						}
+						if (Arrow4.getGlobalBounds().contains(mouseCord))
+						{
+							sound3.play();
+							Arrow4.setPosition(1385.0f, 880.0f);
+							Arrow4.setScale(0.8f, 0.8f);
+							std::cout << "Arrow4\n";
+						}
+					}
+					else
+					{
+						Arrow1.setPosition(168.0f, 865.0f);
+						Arrow1.setScale(1.f, 1.f);
+
+						Arrow2.setPosition(564.0f, 865.0f);
+						Arrow2.setScale(1.f, 1.f);
+
+						Arrow3.setPosition(969.0f, 865.0f);
+						Arrow3.setScale(1.f, 1.f);
+
+						Arrow4.setPosition(1363.0f, 865.0f);
+						Arrow4.setScale(1.f, 1.f);
+
+					}
+
+					if (event.type == sf::Event::EventType::KeyPressed)
+					{
+						if (event.key.code == sf::Keyboard::Numpad0)
+						{
+							recorder.start();
+							cout << "RECORD\n";
+						}
+						if (event.key.code == sf::Keyboard::Numpad9)
+						{
+							cout << "REPLAY\n";
+							recorder.stop();
+							buffer = recorder.getBuffer();
+							buffer.saveToFile("test.ogg");
+							sound.setBuffer(buffer);
+							sound.play();
+						}
+						///////////////////////////////   UP   ////////////////////////////////////////
+
+						if (gv::worldClock.getElapsedTime() - LastPressed[0] > sf::seconds(0.1) && event.key.code == sf::Keyboard::Up)  // ?????? 0.1 ??
+							if (event.key.code == sf::Keyboard::Up)
+							{
+								LastPressed[0] = gv::worldClock.getElapsedTime();
+								sound3.play();
+								Arrow1.setPosition(195.0f, 880.0f);
+								Arrow1.setScale(0.8f, 0.8f);
+								cout << "Arrow1\n";
+								if (a[0].N.getGlobalBounds().intersects(Arrow1.getGlobalBounds()))
+								{
+
+									_BOOM[1][2].resetRect();
+									a[0].N.setPosition(168.f, -500.f);
+									score += 100;
+									a[0].speed = rand() % 3 + 1;
+								}
+								if (b[0].N.getGlobalBounds().intersects(Arrow1.getGlobalBounds()))
+								{
+
+									_BOOM[1][3].resetRect();
+									b[0].N.setPosition(168.f, -100.f);  ///  <<<<<<<  ????? ?????? 1
+									score += 100;
+									b[0].speed = rand() % 3 + 1;
+								}
+							}
+						///////////////////////////////   DOWN  ////////////////////////////////////////
+						if (event.key.code == sf::Keyboard::Down)
+						{
+							sound3.play();
+							Arrow2.setPosition(585.0f, 880.0f);
+							Arrow2.setScale(0.8f, 0.8f);
+							cout << "Arrow2\n";
+							if (a[1].N.getGlobalBounds().intersects(Arrow2.getGlobalBounds()))
+							{
+								_BOOM[2][2].resetRect();
+								a[1].N.setPosition(564.f, -500.f);
+								score += 50;
+								a[1].speed = rand() % 3 + 1;
+							}
+							if (b[1].N.getGlobalBounds().intersects(Arrow2.getGlobalBounds()))
+							{
+
+								_BOOM[2][3].resetRect();
+								b[1].N.setPosition(564.f, -100.f);  ///  <<<<<<<  ????? ?????? 2
+								score += 100;
+								b[1].speed = rand() % 3 + 1;
+							}
+						}
+
+
+						///////////////////////////////   LEFT   ////////////////////////////////////////
+						if (event.key.code == sf::Keyboard::Left)
+						{
+
+							sound3.play();
+							Arrow3.setPosition(995.0f, 880.0f);
+							Arrow3.setScale(0.8f, 0.8f);
+							cout << "Arrow3\n";
+							if (a[2].N.getGlobalBounds().intersects(Arrow3.getGlobalBounds()))
+							{
+								_BOOM[3][2].resetRect();
+								a[2].N.setPosition(969.f, -500.f);
+								score += 30;
+								a[2].speed = rand() % 3 + 1;
+							}
+							if (b[2].N.getGlobalBounds().intersects(Arrow3.getGlobalBounds()))
+							{
+
+								_BOOM[3][3].resetRect();
+								b[2].N.setPosition(969.f, -100.f);  ///  <<<<<<<  ????? ?????? 3
+								score += 100;
+								b[2].speed = rand() % 3 + 1;
+							}
+						}
+
+						///////////////////////////////   RIGHT  ////////////////////////////////////////
+						if (event.key.code == sf::Keyboard::Right)
+						{
+
+
+							sound3.play();
+							Arrow4.setPosition(1385.0f, 880.0f);
+							Arrow4.setScale(0.8f, 0.8f);
+							cout << "Arrow4\n";
+							if (a[3].N.getGlobalBounds().intersects(Arrow4.getGlobalBounds()))
+							{
+								///// if perfect change 2nd array number
+								_BOOM[4][2].resetRect();
+								a[3].N.setPosition(1363.f, -500.f);
+								score += 1;
+								a[3].speed = rand() % 3 + 1;
+							}
+							if (b[3].N.getGlobalBounds().intersects(Arrow4.getGlobalBounds()))
+							{
+
+								_BOOM[4][3].resetRect();
+								b[3].N.setPosition(1363.f, -100.f);  ///  <<<<<<<  ????? ?????? 4
+								score += 100;
+								b[3].speed = rand() % 3 + 1;
+							}
+
+						}
+
+						////////////////////////////////////  Specail //////////////////////////////// 
+						if (event.key.code == sf::Keyboard::P)
+						{
+							score += 50000;
+							hp = max;
+						}
+
+						if (event.key.code == sf::Keyboard::Space)
+						{
+							sound5.play();
+							cout << "    \n";
+						}
+
+						if (event.key.code == sf::Keyboard::Escape)
+						{
+							window.close();
+							return 0;
+							cout << "ESC\n";
+						}
+						if (event.key.code == sf::Keyboard::H)
+						{
+
+							A1.pause();
+							sf::sleep(sf::seconds(1));
+							bool pause = true, isExit = 0;
+							while (pause)
+							{
+								/// ....  
+								sf::Event ev;
+
+								while (window.pollEvent(ev))
+								{
+									if (ev.key.code == sf::Keyboard::H)
+									{/// unpause
+
+										A1.play();
+										pause = false;
+
+									}
+									if (ev.key.code == sf::Keyboard::X) /// unpause
+									{
+										pause = false;
+										PLAY = false;
+										MENU = true;
+										isExit = true;
+
+									}
+								}
+								if (isExit) {
+									break;
+								}
+							}
+						}
+					}
+					if (event.type == sf::Event::EventType::KeyReleased)
+					{
+						if (event.key.code == sf::Keyboard::Up)
+						{
+							Arrow1.setPosition(168.0f, 865.0f);
+							Arrow1.setScale(1.f, 1.f);
+						}
+						if (event.key.code == sf::Keyboard::Down)
+						{
+							Arrow2.setPosition(564.0f, 865.0f);
+							Arrow2.setScale(1.f, 1.f);
+						}
+						if (event.key.code == sf::Keyboard::Left)
+						{
+							Arrow3.setPosition(969.0f, 865.0f);
+							Arrow3.setScale(1.f, 1.f);
+						}
+						if (event.key.code == sf::Keyboard::Right)
+						{
+							Arrow4.setPosition(1363.0f, 865.0f);
+							Arrow4.setScale(1.f, 1.f);
+						}
+					}
+				}
+				//////////////////////////////////////////               FAIL                       /////////////////////////////////////////////
+
+				if (a[0].N.getPosition().y < 955 || b[0].N.getPosition().y < 955)
+				{
+					a[0].N.move(0, a[0].speed);
+					b[0].N.move(0, b[0].speed);
+				}
+				else
+				{
+					Arrow1.setFillColor(Color::Red);
+					redTime[1] = cock.getElapsedTime();
+					sound4.play();
+					score -= 1000; HP.setSize(sf::Vector2f(hp / 260, 36)); hp -= 12500;
+					a[0].speed = rand() % 3 + 1;;
+					a[0].N.setPosition(168.f, -500.f);
+					b[0].speed = rand() % 3 + 1;;
+					b[0].N.setPosition(168.f, -500.f);
+				}
+				/////////////////////////////////////////////////////////////////////////////////////////
+
+				if (a[1].N.getPosition().y < 955 && b[1].N.getPosition().y < 955)
+				{
+					a[1].N.move(0, a[1].speed);
+					b[1].N.move(0, b[1].speed);
+				}
+				else
+				{
+					Arrow2.setFillColor(Color::Red);
+					redTime[2] = cock.getElapsedTime();
+					sound4.play();
+					score -= 100; HP.setSize(sf::Vector2f(hp / 260, 36)); hp -= 5000;
+					a[1].speed = rand() % 3 + 1;;
+					a[1].N.setPosition({ 564,-500 });
+					b[1].speed = rand() % 3 + 1;;
+					b[1].N.setPosition(564.f, -500.f);
+				}
+
+				/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+				if (a[2].N.getPosition().y < 955 && b[2].N.getPosition().y < 955)
+				{
+					a[2].N.move(0, a[2].speed);
+					b[2].N.move(0, b[2].speed);
+				}
+				else
+				{
+					Arrow3.setFillColor(Color::Red);
+					redTime[3] = cock.getElapsedTime();
+					sound4.play();
+					score -= 10; HP.setSize(sf::Vector2f(hp / 260, 36)); hp -= 5000;
+					a[2].speed = rand() % 3 + 1;;
+					a[2].N.setPosition({ 969,-500 });
+					b[2].speed = rand() % 3 + 1;;
+					b[2].N.setPosition(969.f, -500.f);
+				}
+
+				/////////////////////////////////////////////////////////////////////////////////////////
+
+				if (a[3].N.getPosition().y < 955)
+				{
+					a[3].N.move(0, a[3].speed);
+					b[3].N.move(0, b[3].speed);
+				}
+				else
+				{
+					Arrow4.setFillColor(Color::Red);
+					redTime[4] = cock.getElapsedTime();
+					sound4.play();
+					score -= 1; HP.setSize(sf::Vector2f(hp / 260, 36)); hp -= 5000;
+					a[3].speed = rand() % 3 + 1;;
+					a[3].N.setPosition({ 1363, -500 });
+					b[3].speed = rand() % 3 + 1;;
+					b[3].N.setPosition(1363.f, -500.f);
+				}
+				/////////////////////////////////////////////////////////////////
+				if (hp <= 0)
+				{
+					window.close();
+					return 0;
+				}
+
+				A1.update();
+				window.clear();
+				window.draw(A1);
+				scoreText.setString(std::to_string(score));
+				
+
+
+				window.draw(BG3);
+
+				window.setMouseCursor(cursor);
+				window.setMouseCursorVisible(false);
+
+				for (int i = 1; i <= 5; i++) 
+				{
+					for (int j = 1; j <= 5; j++) 
+					{
+						_BOOM[i][j].setRect();
+						if (_BOOM[i][j].animation.nowW != -1)
+							window.draw(_BOOM[i][j].body);
+					}
+				}
+
+				window.draw(Arrow1);
+				window.draw(Arrow2);
+				window.draw(Arrow3);
+				window.draw(Arrow4);
+
+				window.draw(b[0].N);
+				window.draw(b[1].N);
+				window.draw(b[2].N);
+				window.draw(b[3].N);
+
+				window.draw(a[0].N);
+				window.draw(a[1].N);
+				window.draw(a[2].N);
+				window.draw(a[3].N);
+
+				window.draw(BG4);
+				window.draw(scoreText);
+				window.draw(HP1);
+				window.draw(HP);
+				window.display();
+				
+			}
+			
+		}
+	} while (EXIT == false && window.isOpen());
+	return 0;
+}
+
+
